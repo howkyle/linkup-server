@@ -14,3 +14,10 @@ Manage Social Groups
 # Nice to haves
 
 Ticketing system to issue and verify tickets
+
+# Ents
+
+User
+Calendar
+Event
+Invitation
