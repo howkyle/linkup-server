@@ -1,20 +1,14 @@
 package server
 
+//specifies server behaviors
 type Server interface {
-	// ConfigureServices()
-	// ConfigureRoutes()
+	//Configures routes and services
 	Init()
+	//Starts listening on configured port
 	Start()
 }
 
 type Configurer interface {
-}
-
-func New() Server {
-	return nil
-}
-
-//impl
-
-type server struct {
+	// //returns server configurations
+	// Config() interface{}
 }
