@@ -22,7 +22,7 @@ func (r repository) Create(u uman.User) (interface{}, error) {
 		return nil, InvalidUser
 	}
 
-	res := r.DB.Create(&u)
+	res := r.DB.Create(&user)
 	if res.Error != nil {
 		log.Println(res.Error)
 		return nil, CreationError
