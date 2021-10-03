@@ -6,6 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/howkyle/linkup-server/user"
+	"github.com/howkyle/uman"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -16,18 +19,25 @@ type Router interface {
 }
 
 //wraps db
-type DB interface{}
+type DB *gorm.DB
+
+type Service interface{}
+type ServiceContainer map[string]Service
 
 type server struct {
-	router Router
-	db     DB
-	config config
+	router      Router
+	db          DB
+	config      config
+	userService user.Service
+	// authManager uman.AuthManager
+	// userManager uman.UserManager
 }
 
 //configures the servers database connection and application routes
 func (s *server) Init() {
 	s.db = initDB(s.config.DB)
-	s.router = configRouter()
+	configServices(s)
+	configRouter(s)
 }
 
 //starts the server on the specified port
@@ -47,7 +57,7 @@ func initDB(connection string) DB {
 	log.Printf("connected to db: %v\n", db.Name())
 
 	log.Println("running db migrations")
-	err = db.AutoMigrate()
+	err = db.AutoMigrate(user.User{})
 	if err != nil {
 		log.Println(err)
 		panic("unable to run db migration: " + err.Error())
@@ -56,21 +66,28 @@ func initDB(connection string) DB {
 
 }
 
-//configures routes and returns pointer to router
-func configRouter() Router {
+//configures services
+func configServices(s *server) {
+	ur := user.NewRepository(s.db)
+	authMan := uman.NewJWTAuthManager(s.config.ServerSecret, "pyt", "localhost")
+	userMan := uman.NewUserManager(ur)
+	s.userService = user.NewService(ur, authMan, userMan)
+}
 
+//configures routes and sets server router
+func configRouter(s *server) {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "welcome") })
-
-	return r
+	r.HandleFunc("/signup", user.SignupHandler(s.userService))
+	s.router = r
 }
 
 //returns a new instance of a server with configurations
-func New(c Configurer) server {
+func New(c Configurer) Server {
 
 	conf, ok := c.(config)
 	if !ok {
 		panic("invalid configuration")
 	}
-	return server{config: conf}
+	return &server{config: conf}
 }
