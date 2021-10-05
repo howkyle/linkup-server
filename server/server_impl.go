@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/howkyle/authman"
 	"github.com/howkyle/linkup-server/user"
-	"github.com/howkyle/uman"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -69,16 +70,17 @@ func initDB(connection string) DB {
 //configures services
 func configServices(s *server) {
 	ur := user.NewRepository(s.db)
-	authMan := uman.NewJWTAuthManager(s.config.ServerSecret, "pyt", "localhost")
-	userMan := uman.NewUserManager(ur)
-	s.userService = user.NewService(ur, authMan, userMan)
+	authMan := authman.NewJWTAuthManager(s.config.ServerSecret, "pyt", "localhost", time.Minute*15)
+	s.userService = user.NewService(ur, authMan)
 }
 
 //configures routes and sets server router
 func configRouter(s *server) {
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { fmt.Fprintf(w, "welcome") })
-	r.HandleFunc("/signup", user.SignupHandler(s.userService))
+	r.HandleFunc("/signup", user.SignupHandler(s.userService)).Methods("POST")
+	r.HandleFunc("/login", user.LoginHandler(s.userService)).Methods("POST")
+
 	s.router = r
 }
 
