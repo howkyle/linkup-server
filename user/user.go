@@ -16,22 +16,14 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func (u User) GetID() interface{} {
-	return u.ID
-}
-func (u User) GetUsername() string {
-	return u.Username
-}
-func (u User) GetPassword() string {
-	return u.Password
-}
-
-func (u User) GetEmail() string {
-	return u.Email
-}
-
 type Service interface {
 	Register(u User) (uint, error)
-	Login(u User, p string) error
+	Login(u User) (interface{}, error)
 	Logout() error
+}
+
+type Repository interface {
+	Delete(id interface{}) error
+	Retrieve(u User) (User, error)
+	Create(u User) (interface{}, error)
 }
