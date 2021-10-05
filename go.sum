@@ -4,10 +4,10 @@ github.com/golang-jwt/jwt v3.2.2+incompatible h1:IfV12K8xAKAnZqdXVzCZ+TOjboZ2keL
 github.com/golang-jwt/jwt v3.2.2+incompatible/go.mod h1:8pz2t5EyA70fFQQSrl6XZXzqecmYZeUEB8OUGHkxJ+I=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
-github.com/howkyle/stockfolio-server v0.0.0-20210922172310-df95a38413f6 h1:4nQNi69a9Jkh6Leq/Er7qC+I3DupgiV3WqABV6EFAw0=
-github.com/howkyle/stockfolio-server v0.0.0-20210922172310-df95a38413f6/go.mod h1:Coq02vsWdTO+0Yd+Ump50ShR15sv/CctMhHo9JlGhU8=
-github.com/howkyle/uman v0.0.4 h1:ALrvgetdR3N4s7Yz1ry6HX1rcTQzpSI03dqlX7UVOZI=
-github.com/howkyle/uman v0.0.4/go.mod h1:b8L9WGQpy/Oo1EfPz+RVwMiDliTBbd0wnIgTsjB9108=
+github.com/howkyle/authman v0.0.6 h1:tPZ9vhmvz2z2qwN0bt1oUJDJ+4qNFJVWY32fnRPNOCk=
+github.com/howkyle/authman v0.0.6/go.mod h1:dy0ZMAIQzvOh0FdNpjD8N0zf+6zioMaVQFDvqrUWfD0=
+github.com/howkyle/authman v0.0.7-0.20211005022517-fab5a08aee10 h1:P2E0D2afWjaFGs1IJa5XVaKFu84+QG9TfRCFQhHUj/M=
+github.com/howkyle/authman v0.0.7-0.20211005022517-fab5a08aee10/go.mod h1:dy0ZMAIQzvOh0FdNpjD8N0zf+6zioMaVQFDvqrUWfD0=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.2 h1:eVKgfIdy9b6zbWBMgFpfDPoAMifwSZagU9HmEU6zgiI=
