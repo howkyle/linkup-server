@@ -32,11 +32,11 @@ func (ul UserLogin) User() User {
 }
 
 type service struct {
-	repo Repository
-	// userManager uman.UserManager
+	repo        Repository
 	authManager authman.AuthManager
 }
 
+//takes and new user and hashes pass and stores to database
 func (s service) Register(u User) (uint, error) {
 	hashedPass, err := authman.NewUserPassCredentials(u.Username, u.Password).Hash()
 	if err != nil {
@@ -57,6 +57,7 @@ func (s service) Register(u User) (uint, error) {
 	return uid, nil
 }
 
+//takes a user and authenticates the user and returns auth token/cookie
 func (s service) Login(u User) (interface{}, error) {
 	user, err := s.repo.Retrieve(User{Username: u.Username})
 	if err != nil {
@@ -72,8 +73,6 @@ func (s service) Login(u User) (interface{}, error) {
 }
 
 func (s service) Logout() error {
-	// s.userManager.Retrieve(u.Username)
-
 	return nil
 }
 
