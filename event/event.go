@@ -1,17 +1,28 @@
 //handles events
 package event
 
-import "time"
+import (
+	"errors"
+	"time"
 
-type Event interface {
-	//returns the location of the event
-	Location() (Location, error)
-	//returns the time that the event should occur
-	Time() time.Time
-	//adds a new participant to the event
-	AddParticipant(p Participant) error
-	//returns all the participants
-	Participants() []Participant
+	"gorm.io/gorm"
+)
+
+type Event struct {
+	gorm.Model
+	UserID      uint
+	Title       string
+	Location    Location
+	Time        time.Time
+	Invitations map[uint]Invitation
+}
+
+func (e *Event) AddInvitation(i Invitation) error {
+	if (e.Invitations[i.UserID] != Invitation{}) {
+		return errors.New("user already invited")
+	}
+	e.Invitations[i.UserID] = i
+	return nil
 }
 
 type Location struct {
@@ -20,5 +31,13 @@ type Location struct {
 	Name      string
 }
 
-type Participant interface {
+type Repository interface {
+	//adds a new event record to the database
+	Create(e Event) (uint, error)
+	//retrieves an event record from the database
+	Retrieve(e interface{}) (Event, error)
+	//updates an existing event record
+	Update(e Event) error
+	//deletes an existing event record
+	Delete(e interface{}) error
 }
