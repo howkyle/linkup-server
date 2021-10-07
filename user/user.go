@@ -3,6 +3,7 @@ package user
 import (
 	"time"
 
+	"github.com/howkyle/linkup-server/event"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +15,7 @@ type User struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
+	Events    []event.Event
 }
 
 type Service interface {
