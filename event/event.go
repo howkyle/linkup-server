@@ -10,9 +10,9 @@ import (
 
 type Event struct {
 	gorm.Model
-	UserID      uint
-	Title       string
-	Location    Location
+	UserID uint
+	Title  string
+	Location
 	Time        time.Time
 	Invitations map[uint]Invitation
 }
@@ -29,6 +29,10 @@ type Location struct {
 	Latitude  int
 	Longitude int
 	Name      string
+}
+
+type Service interface {
+	CreateEvent(e CreateEvent) (uint, error)
 }
 
 type Repository interface {
