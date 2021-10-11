@@ -1,25 +1,20 @@
 package user
 
 import (
-	"time"
-
 	"github.com/howkyle/linkup-server/event"
-	"gorm.io/gorm"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type User struct {
-	ID        uint `gorm:"primaryKey"`
-	Username  string
-	Email     string
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
-	Events    []event.Event
+	ID       primitive.ObjectID `bson:"_id,omitempty"`
+	Username string             `bson:"username,omitempty"`
+	Email    string             `bson:"email,omitempty"`
+	Password string             `bson:"password,omitempty"`
+	Events   []event.Event
 }
 
 type Service interface {
-	Register(u User) (uint, error)
+	Register(u User) (interface{}, error)
 	Login(u User) (interface{}, error)
 	Logout() error
 }
