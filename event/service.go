@@ -10,7 +10,7 @@ type service struct {
 }
 
 //create a new event
-func (s service) CreateEvent(c CreateEvent) (uint, error) {
+func (s service) CreateEvent(c CreateEvent) (interface{}, error) {
 	//validate struct then create
 
 	id, err := s.repo.Create(c.Event())

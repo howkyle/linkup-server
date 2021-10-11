@@ -37,7 +37,7 @@ type service struct {
 }
 
 //takes and new user and hashes pass and stores to database
-func (s service) Register(u User) (uint, error) {
+func (s service) Register(u User) (interface{}, error) {
 	hashedPass, err := authman.NewUserPassCredentials(u.Username, u.Password).Hash()
 	if err != nil {
 		log.Println(err)
@@ -49,12 +49,8 @@ func (s service) Register(u User) (uint, error) {
 		log.Println(err)
 		return 0, RegistrationError
 	}
-	uid, ok := id.(uint)
-	if !ok {
-		return 0, InvalidID
-	}
 
-	return uid, nil
+	return id, nil
 }
 
 //takes a user and authenticates the user and returns auth token/cookie
