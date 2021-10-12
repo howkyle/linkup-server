@@ -3,6 +3,8 @@ package event
 import (
 	"fmt"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type service struct {
@@ -28,15 +30,15 @@ func NewService(r Repository) Service {
 
 //used when creating a new event
 type CreateEvent struct {
-	UserID       uint
+	UserID       primitive.ObjectID
 	Title        string
-	LocationX    int
-	LocationY    int
+	Latitude     int
+	Longitude    int
 	LocationName string
-	Time         time.Duration
+	Time         time.Time
 }
 
 //maps usecase to an event
 func (c CreateEvent) Event() Event {
-	return Event{UserID: c.UserID, Title: c.Title, Location: Location{Latitude: c.LocationY, Longitude: c.LocationX, Name: c.LocationName}}
+	return Event{UserID: c.UserID, Title: c.Title, Location: Location{Latitude: c.Latitude, Longitude: c.Longitude, Name: c.LocationName}}
 }
