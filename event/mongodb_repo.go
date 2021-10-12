@@ -1,13 +1,30 @@
 package event
 
-import "go.mongodb.org/mongo-driver/mongo"
+import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+)
+
+const collection = "events"
+
+var CreationError = errors.New("failed to add event to database")
 
 type mongorepo struct {
 	db *mongo.Database
 }
 
 func (r mongorepo) Create(e Event) (interface{}, error) {
-	return 0, nil
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	res, err := r.db.Collection(collection).InsertOne(ctx, e)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", CreationError, err)
+	}
+	return res.InsertedID, nil
 }
 
 func (r mongorepo) Retrieve(e interface{}) (Event, error) {
