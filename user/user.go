@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/howkyle/linkup-server/event"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -10,7 +9,6 @@ type User struct {
 	Username string             `bson:"username,omitempty"`
 	Email    string             `bson:"email,omitempty"`
 	Password string             `bson:"password,omitempty"`
-	Events   []event.Event
 }
 
 type Service interface {
@@ -20,7 +18,8 @@ type Service interface {
 }
 
 type Repository interface {
-	Delete(id interface{}) error
-	Retrieve(u User) (User, error)
 	Create(u User) (interface{}, error)
+	Retrieve(u User) (User, error)
+	Update(u User) error
+	Delete(id interface{}) error
 }
