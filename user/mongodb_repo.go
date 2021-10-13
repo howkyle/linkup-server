@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -16,6 +17,9 @@ var NotFound = errors.New("user not found")
 
 const Collection = "users"
 
+type update struct {
+	set User `bson:"$set"`
+}
 type mongorepo struct {
 	db *mongo.Database
 }
@@ -40,6 +44,23 @@ func (r mongorepo) Retrieve(u User) (User, error) {
 		return User{}, fmt.Errorf("failed to retrieve user: %w", err)
 	}
 	return user, nil
+}
+
+func (r mongorepo) Update(u User) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	filter := bson.D{{Key: "_id", Value: u.ID}}
+	update := bson.D{{Key: "$set", Value: u}} //todo experiment with struct
+
+	res, err := r.db.Collection(Collection).UpdateOne(ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update user: %v", err)
+	}
+	if res.ModifiedCount != 1 {
+		return fmt.Errorf("failed to update user: no record modified")
+	}
+
+	return nil
 }
 
 func (r mongorepo) Delete(id interface{}) error {
