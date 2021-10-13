@@ -50,7 +50,8 @@ func (s *server) Start() {
 //initializes mongo db
 func initMongo(connection string) mongodb {
 	//todo use cancel variable function
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
 	opts := options.Client().ApplyURI(connection)
 	log.Println(" creating connection to mongo")
 	client, err := mongo.Connect(ctx, opts)
