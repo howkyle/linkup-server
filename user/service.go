@@ -59,7 +59,7 @@ func (s service) Login(u User) (interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%v: %w", LoginError, err)
 	}
-	c := authman.NewUserPassCredentials(fmt.Sprintf("%v", user.ID), user.Password)
+	c := authman.NewUserPassCredentials(user.ID.Hex(), user.Password)
 	auth, err := s.authManager.Authenticate(c, u.Password)
 
 	if err != nil {
