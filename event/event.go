@@ -9,7 +9,7 @@ import (
 )
 
 type Event struct {
-	ID     primitive.ObjectID `bson:"_id, omitempty"`
+	ID     primitive.ObjectID `bson:"_id,omitempty"`
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 	Title  string             `bson:"title,omitempty"`
 	Location

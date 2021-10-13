@@ -5,28 +5,28 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func NewEventHandler(s Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		userid := fmt.Sprintf("%v", r.Context().Value("sub"))
-
-		uid, err := strconv.ParseUint(userid, 10, 64)
-		if err != nil {
-			http.Error(w, "failed to get user", http.StatusInternalServerError)
-			return
-		}
-
+		userid := r.Context().Value("sub")
 		var c CreateEvent
-		err = json.NewDecoder(r.Body).Decode(&c)
+		err := json.NewDecoder(r.Body).Decode(&c)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "failed to read body", http.StatusBadRequest)
 			return
 		}
 
-		c.UserID = uint(uid)
+		c.UserID, err = primitive.ObjectIDFromHex(fmt.Sprint(userid))
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "id conversion failed", http.StatusInternalServerError)
+			return
+		}
+
 		_, err = s.CreateEvent(c)
 		if err != nil {
 			log.Println(err)
