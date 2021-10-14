@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+//handles the creation of a new event
 func NewEventHandler(s Service) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userid := r.Context().Value("sub")
@@ -27,12 +28,35 @@ func NewEventHandler(s Service) http.HandlerFunc {
 			return
 		}
 
-		_, err = s.CreateEvent(c)
+		eid, err := s.CreateEvent(c)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "failed to create event", http.StatusInternalServerError)
 			return
 		}
+		err = json.NewEncoder(w).Encode(eid)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		}
 
+	}
+}
+
+func NewInvitationHandler(s Service) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var c CreateInvitation
+		err := json.NewDecoder(r.Body).Decode(&c)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "failed to decode request body", http.StatusBadRequest)
+			return
+		}
+		err = s.AddInvite(c.Invitation())
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "failed to add invite", http.StatusBadRequest)
+			return
+		}
 	}
 }
