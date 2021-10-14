@@ -85,7 +85,7 @@ func configRouter(s *server) {
 	r.HandleFunc("/signup", user.SignupHandler(s.userService)).Methods("POST")
 	r.HandleFunc("/login", user.LoginHandler(s.userService)).Methods("POST")
 	r.HandleFunc("/event", s.authManager.Filter(event.NewEventHandler(s.eventService))).Methods("POST")
-
+	r.HandleFunc("/invitation", s.authManager.Filter(event.NewInvitationHandler(s.eventService))).Methods("POST")
 	s.router = r
 }
 
