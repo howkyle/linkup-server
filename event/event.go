@@ -2,7 +2,6 @@
 package event
 
 import (
-	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,16 +12,8 @@ type Event struct {
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 	Title  string             `bson:"title,omitempty"`
 	Location
-	Time        time.Time           `bson:"time"`
-	Invitations map[uint]Invitation `bson:"invitations, omitempty"`
-}
-
-func (e *Event) AddInvitation(i Invitation) error {
-	if (e.Invitations[i.UserID] != Invitation{}) {
-		return errors.New("user already invited")
-	}
-	e.Invitations[i.UserID] = i
-	return nil
+	Time        time.Time             `bson:"time,omitempty"`
+	Invitations map[string]Invitation `bson:"invitations, omitempty"`
 }
 
 type Location struct {
@@ -33,6 +24,7 @@ type Location struct {
 
 type Service interface {
 	CreateEvent(e CreateEvent) (interface{}, error)
+	AddInvite(i Invitation) error
 }
 
 type Repository interface {
@@ -43,5 +35,5 @@ type Repository interface {
 	//updates an existing event record
 	Update(e Event) error
 	//deletes an existing event record
-	Delete(e interface{}) error
+	Delete(e Event) error
 }
