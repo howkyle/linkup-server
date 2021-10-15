@@ -42,21 +42,3 @@ func NewEventHandler(s Service) http.HandlerFunc {
 
 	}
 }
-
-func NewInvitationHandler(s Service) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var c CreateInvitation
-		err := json.NewDecoder(r.Body).Decode(&c)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "failed to decode request body", http.StatusBadRequest)
-			return
-		}
-		err = s.AddInvite(c.Invitation())
-		if err != nil {
-			log.Println(err)
-			http.Error(w, "failed to add invite", http.StatusBadRequest)
-			return
-		}
-	}
-}
