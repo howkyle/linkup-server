@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/howkyle/authman"
 	"github.com/howkyle/linkup-server/event"
+	"github.com/howkyle/linkup-server/invitation"
 	"github.com/howkyle/linkup-server/user"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -26,12 +27,13 @@ type Service interface{}
 type ServiceContainer map[string]Service
 
 type server struct {
-	router       Router
-	db           mongodb
-	config       config
-	userService  user.Service
-	eventService event.Service
-	authManager  authman.AuthManager
+	router        Router
+	db            mongodb
+	config        config
+	userService   user.Service
+	eventService  event.Service
+	inviteService invitation.Service
+	authManager   authman.AuthManager
 }
 
 //configures the servers database connection and application routes
@@ -74,9 +76,11 @@ func initMongo(connection string) mongodb {
 func configServices(s *server) {
 	ur := user.NewMongoRepository(s.db)
 	er := event.NewMongoRepository(s.db)
+	ir := invitation.NewMongoRepository(s.db)
 	s.authManager = authman.NewJWTAuthManager(s.config.ServerSecret, "pyt", "localhost", time.Minute*15)
 	s.userService = user.NewService(ur, s.authManager)
 	s.eventService = event.NewService(er)
+	s.inviteService = invitation.NewService(ir)
 }
 
 //configures routes and sets server router
@@ -85,7 +89,9 @@ func configRouter(s *server) {
 	r.HandleFunc("/signup", user.SignupHandler(s.userService)).Methods("POST")
 	r.HandleFunc("/login", user.LoginHandler(s.userService)).Methods("POST")
 	r.HandleFunc("/event", s.authManager.Filter(event.NewEventHandler(s.eventService))).Methods("POST")
-	r.HandleFunc("/invitation", s.authManager.Filter(event.NewInvitationHandler(s.eventService))).Methods("POST")
+	r.HandleFunc("/invitation", s.authManager.Filter(invitation.NewInvitationHandler(s.inviteService))).Methods("POST")
+	r.HandleFunc("/invitations", s.authManager.Filter(invitation.GetInvitationsHandler(s.inviteService))).Methods("GET")
+	// r.HandleFunc("/invitation/{id}/accept", s.authManager.Filter())
 	s.router = r
 }
 
