@@ -12,8 +12,7 @@ type Event struct {
 	UserID primitive.ObjectID `bson:"user_id,omitempty"`
 	Title  string             `bson:"title,omitempty"`
 	Location
-	Time        time.Time             `bson:"time,omitempty"`
-	Invitations map[string]Invitation `bson:"invitations, omitempty"`
+	Time time.Time `bson:"time,omitempty"`
 }
 
 type Location struct {
@@ -24,7 +23,6 @@ type Location struct {
 
 type Service interface {
 	CreateEvent(e CreateEvent) (interface{}, error)
-	AddInvite(i Invitation) error
 }
 
 type Repository interface {
