@@ -4,10 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -32,9 +32,13 @@ func (r mongorepo) Create(e Event) (interface{}, error) {
 func (r mongorepo) Retrieve(id interface{}) (Event, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
+
+	eid, ok := id.(primitive.ObjectID)
+	if !ok {
+		return Event{}, fmt.Errorf("invalid event id")
+	}
 	var event Event
-	log.Printf("%v", id)
-	filter := bson.D{{Key: "_id", Value: id}}
+	filter := bson.D{{Key: "_id", Value: eid}}
 	err := r.db.Collection(collection).FindOne(ctx, filter).Decode(&event)
 	if err != nil {
 		return Event{}, fmt.Errorf("failed to retrieve event: %w", err)
