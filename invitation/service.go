@@ -22,6 +22,7 @@ func (s service) AddInvitation(i Invitation) (interface{}, error) {
 	return id, nil
 }
 
+//takes an invitation id and returns an invitation
 func (s service) Invitation(id interface{}) (Invitation, error) {
 
 	invitationID, ok := id.(primitive.ObjectID)
@@ -59,14 +60,15 @@ func (s service) InvitationsByUser(uid interface{}) ([]Invitation, error) {
 	return i, nil
 }
 
-func (s service) AcceptInvitation(id interface{}) error {
-	invitationID, ok := id.(primitive.ObjectID)
-	if !ok {
-		return fmt.Errorf("invalid invitation id")
-	}
-	i, err := s.repo.Retrieve(Invitation{ID: invitationID})
+//takes an invitation and accept and updates invitation
+func (s service) AcceptInvitation(userID, id interface{}) error {
+	i, err := s.repo.Retrieve(id)
 	if err != nil {
 		return fmt.Errorf("failed to accept invitation: %v", err)
+	}
+
+	if i.UserID != userID {
+		return fmt.Errorf("user doesnt own invitation")
 	}
 	i.Accepted = true
 	err = s.repo.Update(i)
@@ -83,9 +85,10 @@ func NewService(r Repository) Service {
 type CreateInvitation struct {
 	UserID   primitive.ObjectID
 	EventID  primitive.ObjectID
+	Summary  string
 	Accepted bool
 }
 
 func (c CreateInvitation) Invitation() Invitation {
-	return Invitation{UserID: c.UserID, EventID: c.EventID, Accepted: false}
+	return Invitation{UserID: c.UserID, EventID: c.EventID, Summary: c.Summary, Accepted: false}
 }
