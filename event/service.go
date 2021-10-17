@@ -50,5 +50,5 @@ type CreateEvent struct {
 
 //maps usecase to an event
 func (c CreateEvent) Event() Event {
-	return Event{UserID: c.UserID, Title: c.Title, Location: Location{Latitude: c.Latitude, Longitude: c.Longitude, LocationName: c.LocationName}}
+	return Event{UserID: c.UserID, Title: c.Title, Time: c.Time, Location: Location{Latitude: c.Latitude, Longitude: c.Longitude, LocationName: c.LocationName}}
 }
