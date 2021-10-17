@@ -89,9 +89,9 @@ func configRouter(s *server) {
 	r.HandleFunc("/signup", user.SignupHandler(s.userService)).Methods("POST")
 	r.HandleFunc("/login", user.LoginHandler(s.userService)).Methods("POST")
 	r.HandleFunc("/event", s.authManager.Filter(event.NewEventHandler(s.eventService))).Methods("POST")
-	r.HandleFunc("/invitation", s.authManager.Filter(invitation.NewInvitationHandler(s.inviteService))).Methods("POST")
+	r.HandleFunc("/invitation", s.authManager.Filter(invitation.NewInvitationHandler(s.inviteService, s.eventService))).Methods("POST")
 	r.HandleFunc("/invitations", s.authManager.Filter(invitation.GetInvitationsHandler(s.inviteService))).Methods("GET")
-	// r.HandleFunc("/invitation/{id}/accept", s.authManager.Filter())
+	r.HandleFunc("/invitation/{id}/accept", s.authManager.Filter(invitation.AcceptHandler(s.inviteService))).Methods("GET")
 	s.router = r
 }
 
