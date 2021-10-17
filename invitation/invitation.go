@@ -6,6 +6,7 @@ type Invitation struct {
 	ID       primitive.ObjectID `bson:"_id,omitempty"`
 	UserID   primitive.ObjectID `bson:"user_id,omitempty"`
 	EventID  primitive.ObjectID `bson:"event_id,omitempty"`
+	Summary  string             `bson:"summary,omitempty"`
 	Accepted bool               `bson:"accepted,omitempty"`
 }
 
@@ -14,7 +15,7 @@ type Service interface {
 	Invitation(filter interface{}) (Invitation, error)
 	InvitationsByUser(userid interface{}) ([]Invitation, error)
 	InvitationsByEvent(eventid interface{}) ([]Invitation, error)
-	AcceptInvitation(id interface{}) error
+	AcceptInvitation(userid, id interface{}) error
 }
 
 type Repository interface {
