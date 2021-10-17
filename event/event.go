@@ -16,13 +16,14 @@ type Event struct {
 }
 
 type Location struct {
-	Latitude  int    `bson:"latitute,omitempty"`
-	Longitude int    `bson:"longitude,omitempty"`
-	Name      string `bson:"name,omitempty"`
+	Latitude     int    `bson:"latitute,omitempty"`
+	Longitude    int    `bson:"longitude,omitempty"`
+	LocationName string `bson:"location_name,omitempty"`
 }
 
 type Service interface {
 	CreateEvent(e CreateEvent) (interface{}, error)
+	Event(id interface{}) (Event, error)
 }
 
 type Repository interface {
