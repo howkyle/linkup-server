@@ -22,6 +22,16 @@ func (s service) CreateEvent(c CreateEvent) (interface{}, error) {
 	return id, nil
 }
 
+//retrieves an event using the event id
+func (s service) Event(id interface{}) (Event, error) {
+
+	e, err := s.repo.Retrieve(id)
+	if err != nil {
+		return Event{}, fmt.Errorf("failed to retrieve event: %v", err)
+	}
+	return e, nil
+}
+
 func NewService(r Repository) Service {
 	return service{repo: r}
 }
@@ -40,5 +50,5 @@ type CreateEvent struct {
 
 //maps usecase to an event
 func (c CreateEvent) Event() Event {
-	return Event{UserID: c.UserID, Title: c.Title, Location: Location{Latitude: c.Latitude, Longitude: c.Longitude, Name: c.LocationName}}
+	return Event{UserID: c.UserID, Title: c.Title, Location: Location{Latitude: c.Latitude, Longitude: c.Longitude, LocationName: c.LocationName}}
 }
