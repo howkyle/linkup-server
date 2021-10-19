@@ -15,9 +15,7 @@ Manage Social Groups
 
 Ticketing system to issue and verify tickets
 
-# Ents
+# Stack
 
-User
-Calendar
-Event
-Invitation
+Go
+MongoDB
