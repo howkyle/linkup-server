@@ -3,15 +3,28 @@ package user
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/howkyle/linkup-server/validation"
 )
 
 var BadRequestBody = errors.New("unable to decode request body")
 var SignupFailure = errors.New("failed to create user")
 var LoginFailure = errors.New("failed to authenticate")
 
-func SignupHandler(s Service) http.HandlerFunc {
+type UserSignup struct {
+	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
+}
+
+func (u UserSignup) User() User {
+	return User{Username: u.Username, Email: u.Email, Password: u.Password}
+}
+
+func SignupHandler(s Service, v validation.Validator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var us UserSignup
 
@@ -22,15 +35,31 @@ func SignupHandler(s Service) http.HandlerFunc {
 			return
 		}
 
+		err = v.ValidateStruct(us)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, fmt.Errorf("%v: %w", BadRequestBody.Error(), err).Error(), http.StatusBadRequest)
+			return
+		}
+
 		_, err = s.Register(us.User())
 		if err != nil {
-			http.Error(w, SignupFailure.Error(), http.StatusInternalServerError)
+			http.Error(w, fmt.Errorf("%v: %w", SignupFailure, err).Error(), http.StatusInternalServerError)
 			return
 		}
 	}
 }
 
-func LoginHandler(s Service) http.HandlerFunc {
+type UserLogin struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}
+
+func (ul UserLogin) User() User {
+	return User{Username: ul.Username, Password: ul.Password}
+}
+
+func LoginHandler(s Service, v validation.Validator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var ul UserLogin
 
@@ -38,6 +67,13 @@ func LoginHandler(s Service) http.HandlerFunc {
 		if err != nil {
 			log.Println(err)
 			http.Error(w, BadRequestBody.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = v.ValidateStruct(ul)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, fmt.Errorf("%v: %w", BadRequestBody.Error(), err).Error(), http.StatusBadRequest)
 			return
 		}
 
