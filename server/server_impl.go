@@ -12,6 +12,7 @@ import (
 	"github.com/howkyle/linkup-server/event"
 	"github.com/howkyle/linkup-server/invitation"
 	"github.com/howkyle/linkup-server/user"
+	"github.com/howkyle/linkup-server/validation"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -38,7 +39,7 @@ type server struct {
 
 //configures the servers database connection and application routes
 func (s *server) Init() {
-	s.db = initMongo(s.config.DB)
+	s.db = initMongo(s.config.DB, s.config.DB_Name)
 	configServices(s)
 	configRouter(s)
 }
@@ -50,8 +51,7 @@ func (s *server) Start() {
 }
 
 //initializes mongo db
-func initMongo(connection string) mongodb {
-	//todo use cancel variable function
+func initMongo(connection string, database string) mongodb {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	opts := options.Client().ApplyURI(connection)
@@ -69,7 +69,7 @@ func initMongo(connection string) mongodb {
 	}
 	log.Println("connection verified")
 
-	return client.Database("linkup") //todo put in variable
+	return client.Database(database)
 }
 
 //configures services
@@ -85,9 +85,10 @@ func configServices(s *server) {
 
 //configures routes and sets server router
 func configRouter(s *server) {
+	v := validation.NewValidator()
 	r := mux.NewRouter()
-	r.HandleFunc("/signup", user.SignupHandler(s.userService)).Methods("POST")
-	r.HandleFunc("/login", user.LoginHandler(s.userService)).Methods("POST")
+	r.HandleFunc("/signup", user.SignupHandler(s.userService, v)).Methods("POST")
+	r.HandleFunc("/login", user.LoginHandler(s.userService, v)).Methods("POST")
 	r.HandleFunc("/event", s.authManager.Filter(event.NewEventHandler(s.eventService))).Methods("POST")
 	r.HandleFunc("/invitation", s.authManager.Filter(invitation.NewInvitationHandler(s.inviteService, s.eventService))).Methods("POST")
 	r.HandleFunc("/invitations", s.authManager.Filter(invitation.GetInvitationsHandler(s.inviteService))).Methods("GET")
