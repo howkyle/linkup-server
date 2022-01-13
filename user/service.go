@@ -12,25 +12,6 @@ var RegistrationError = errors.New("user registration failed")
 var InvalidID = errors.New("invalid user id type")
 var LoginError = errors.New("login failure")
 
-type UserSignup struct {
-	Username string
-	Email    string
-	Password string
-}
-
-func (u UserSignup) User() User {
-	return User{Username: u.Username, Email: u.Email, Password: u.Password}
-}
-
-type UserLogin struct {
-	Username string
-	Password string
-}
-
-func (ul UserLogin) User() User {
-	return User{Username: ul.Username, Password: ul.Password}
-}
-
 type service struct {
 	repo        Repository
 	authManager authman.AuthManager
@@ -38,6 +19,10 @@ type service struct {
 
 //takes and new user and hashes pass and stores to database
 func (s service) Register(u User) (interface{}, error) {
+	err := checkDuplicate(s.repo, u)
+	if err != nil {
+		return nil, err
+	}
 	hashedPass, err := authman.NewUserPassCredentials(u.Username, u.Password).Hash()
 	if err != nil {
 		log.Println(err)
@@ -51,6 +36,15 @@ func (s service) Register(u User) (interface{}, error) {
 	}
 
 	return id, nil
+}
+
+//checks if a user with the given username or email exist in the database
+func checkDuplicate(r Repository, u User) error {
+	_, err := r.Retrieve(User{Username: u.Username, Email: u.Email})
+	if err == nil {
+		return fmt.Errorf("duplicate user")
+	}
+	return nil
 }
 
 //takes a user and authenticates the user and returns auth token/cookie
