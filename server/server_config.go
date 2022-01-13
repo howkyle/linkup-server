@@ -8,6 +8,7 @@ import (
 
 type config struct {
 	DB           string `yaml:"db"`
+	DB_Name      string `yaml:"db_name"`
 	ServerPort   string `yaml:"port"`
 	ServerSecret string `yaml:"secret"`
 }
