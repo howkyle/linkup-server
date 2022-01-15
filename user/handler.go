@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 
@@ -28,14 +29,7 @@ func SignupHandler(s Service, v validation.Validator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var us UserSignup
 
-		err := json.NewDecoder(r.Body).Decode(&us)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, BadRequestBody.Error(), http.StatusBadRequest)
-			return
-		}
-
-		err = v.ValidateStruct(us)
+		err := decodeAndValidate(r.Body, &us, v)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, fmt.Errorf("%v: %w", BadRequestBody.Error(), err).Error(), http.StatusBadRequest)
@@ -63,14 +57,7 @@ func LoginHandler(s Service, v validation.Validator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var ul UserLogin
 
-		err := json.NewDecoder(r.Body).Decode(&ul)
-		if err != nil {
-			log.Println(err)
-			http.Error(w, BadRequestBody.Error(), http.StatusBadRequest)
-			return
-		}
-
-		err = v.ValidateStruct(ul)
+		err := decodeAndValidate(r.Body, &ul, v)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, fmt.Errorf("%v: %w", BadRequestBody.Error(), err).Error(), http.StatusBadRequest)
@@ -90,4 +77,19 @@ func LoginHandler(s Service, v validation.Validator) http.HandlerFunc {
 		}
 		http.SetCookie(w, &cookie)
 	}
+}
+
+func decodeAndValidate(body io.ReadCloser, target interface{}, v validation.Validator) error {
+	err := json.NewDecoder(body).Decode(target)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	err = v.ValidateStruct(target)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
