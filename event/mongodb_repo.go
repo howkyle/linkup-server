@@ -14,6 +14,7 @@ import (
 const collection = "events"
 
 var CreationError = errors.New("failed to add event to database")
+var DuplicateError = errors.New("duplicate event found")
 
 type mongorepo struct {
 	db *mongo.Database
@@ -22,6 +23,27 @@ type mongorepo struct {
 func (r mongorepo) Create(e Event) (interface{}, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
+	duplicate := bson.D{{
+		Key: "$and",
+		Value: bson.A{
+			bson.D{{Key: "user_id", Value: e.UserID}},
+			bson.D{{
+				Key: "location",
+				Value: bson.D{
+					{Key: "latitude", Value: e.Latitude},
+					{Key: "longitude", Value: e.Longitude},
+					{Key: "location_name", Value: e.LocationName},
+				},
+			}},
+			bson.D{{Key: "time", Value: e.Time}},
+		},
+	}}
+
+	err := r.db.Collection(collection).FindOne(ctx, duplicate).Err()
+	if err == nil {
+		return nil, DuplicateError
+	}
+
 	res, err := r.db.Collection(collection).InsertOne(ctx, e)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %v", CreationError, err)
