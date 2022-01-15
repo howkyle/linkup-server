@@ -16,13 +16,13 @@ type Event struct {
 }
 
 type Location struct {
-	Latitude     int    `bson:"latitute,omitempty"`
+	Latitude     int    `bson:"latitude,omitempty"`
 	Longitude    int    `bson:"longitude,omitempty"`
 	LocationName string `bson:"location_name,omitempty"`
 }
 
 type Service interface {
-	CreateEvent(e CreateEvent) (interface{}, error)
+	CreateEvent(e Event) (interface{}, error)
 	Event(id interface{}) (Event, error)
 }
 
