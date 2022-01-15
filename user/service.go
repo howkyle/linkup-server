@@ -42,7 +42,7 @@ func (s service) Register(u User) (interface{}, error) {
 func checkDuplicate(r Repository, u User) error {
 	_, err := r.Retrieve(User{Username: u.Username, Email: u.Email})
 	if err == nil {
-		return fmt.Errorf("duplicate user")
+		return fmt.Errorf("duplicate user: %w", err)
 	}
 	return nil
 }
