@@ -39,13 +39,13 @@ func (r mongorepo) Create(u User) (interface{}, error) {
 func (r mongorepo) Retrieve(u User) (User, error) {
 	var user User
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
-	filter := bson.D{
-		{Key: "$or", Value: bson.A{
+	filter := bson.D{{
+		Key: "$or",
+		Value: bson.A{
 			bson.D{{Key: "username", Value: u.Username}},
 			bson.D{{Key: "email", Value: u.Email}},
 		},
-		},
-	}
+	}}
 	defer cancel()
 	err := r.db.Collection(Collection).FindOne(ctx, filter).Decode(&user)
 	if err != nil {
