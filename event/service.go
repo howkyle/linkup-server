@@ -29,6 +29,15 @@ func (s service) Event(id interface{}) (Event, error) {
 	return e, nil
 }
 
+//retrieves a slice of the users events
+func (s service) UserEvents(id interface{}) ([]Event, error) {
+	e, err := s.repo.RetrieveByUser(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve user events: %w", err)
+	}
+	return e, nil
+}
+
 func NewService(r Repository) Service {
 	return service{repo: r}
 }
