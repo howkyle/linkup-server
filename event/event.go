@@ -24,6 +24,7 @@ type Location struct {
 type Service interface {
 	CreateEvent(e Event) (interface{}, error)
 	Event(id interface{}) (Event, error)
+	UserEvents(uid interface{}) ([]Event, error)
 }
 
 type Repository interface {
@@ -31,6 +32,8 @@ type Repository interface {
 	Create(e Event) (interface{}, error)
 	//retrieves an event record from the database
 	Retrieve(e interface{}) (Event, error)
+	//retrieves a slice of events using the user id
+	RetrieveByUser(uid interface{}) ([]Event, error)
 	//updates an existing event record
 	Update(e Event) error
 	//deletes an existing event record
