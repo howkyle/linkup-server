@@ -63,6 +63,26 @@ func NewEventHandler(s Service, v validation.Validator) http.HandlerFunc {
 	}
 }
 
+func UserEventsHandler(s Service, v validation.Validator) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		sub := r.Context().Value("sub")
+		userid, err := primitive.ObjectIDFromHex(fmt.Sprint(sub))
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "id conversion failed", http.StatusInternalServerError)
+			return
+		}
+		events, err := s.UserEvents(userid)
+
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(events)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		}
+	}
+}
+
 func decodeAndValidate(body io.ReadCloser, target interface{}, v validation.Validator) error {
 	err := json.NewDecoder(body).Decode(target)
 	if err != nil {
