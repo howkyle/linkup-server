@@ -68,6 +68,30 @@ func (r mongorepo) Retrieve(id interface{}) (Event, error) {
 	return event, nil
 }
 
+func (r mongorepo) RetrieveByUser(userID interface{}) ([]Event, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	uid, ok := userID.(primitive.ObjectID)
+	if !ok {
+		return []Event{}, fmt.Errorf("invalid user id type")
+	}
+	var events []Event
+	filter := bson.D{{Key: "user_id", Value: uid}}
+	cur, err := r.db.Collection(collection).Find(ctx, filter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to retrieve events: %w", err)
+	}
+	for cur.Next(ctx) {
+		var event Event
+		err = cur.Decode(&event)
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode event in slice: %w", err)
+		}
+		events = append(events, event)
+	}
+	return events, nil
+}
+
 func (r mongorepo) Update(e Event) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
